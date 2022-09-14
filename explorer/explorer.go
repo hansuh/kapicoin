@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"text/template"
 
+	"github.com/gorilla/mux"
 	"github.com/hansuh/kapicoin/blockchain"
 )
 
@@ -41,14 +42,18 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func Start() {
+func Start(aPort int) {
+
+	handler := mux.NewRouter()
+	port := fmt.Sprintf(":%d", aPort)
+
 	templates = template.Must(template.ParseGlob(templateDir + "pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml"))
 
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/add", addHandler)
+	handler.HandleFunc("/", homeHandler)
+	handler.HandleFunc("/add", addHandler)
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(port, handler))
 
 }
